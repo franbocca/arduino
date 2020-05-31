@@ -11,7 +11,7 @@
 //#include <splash.h>
 
 #define ONE_WIRE_BUS 14                // DS18B20 data wire is connected to input 14
-#define OLED_RESET 0                  // Adafruit needs this but we don't use for I2C
+#define OLED_RESET 4                  // Adafruit needs this but we don't use for I2C
 
 DeviceAddress thermometerAddress;     // custom array type to hold 64 bit device address
 
@@ -48,13 +48,27 @@ void setup() {
 }
 
 float actualTemp = 0;
+bool enfriar = true;
+int estable = 0;
 
 void loop() {
   
   tempSensor.requestTemperatures();
   actualTemp = tempSensor.getTempC(thermometerAddress);
   displayTemp(actualTemp);  // show temperature on OLED display
-  if (actualTemp > 30.00)
+  if (enfriar)
+    if (actualTemp > 25.00)// si supera la temperatura maxima incremento estable en 1
+      estable = estable + 1;
+    if (estable > 5)// si estable es mayor a 5 enfriar = false
+      enfriar = false;
+  else { // si no enfriar, 
+    if (actualTemp < 28.00)// si baja de la temp minima, decremento estable en 1
+      estable = estable - 1;
+    if (estable < 0) // si estable es menor que 0, enfriar = true
+      enfriar = true;
+  }
+  
+  if (enfriar)
     digitalWrite(rele, HIGH);   // Turn the FAN on (Note that LOW is the voltage level
   else {
     digitalWrite(rele, LOW);
