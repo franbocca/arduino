@@ -57,10 +57,10 @@ void loop() {
   actualTemp = tempSensor.getTempC(thermometerAddress);
   displayTemp(actualTemp);  // show temperature on OLED display
   if (enfriar)
-    if (actualTemp < )// si temp es menor a 25 enfriar = false
+    if (actualTemp < 25.00 )// si temp es menor a 25 enfriar = false
       enfriar = false;
   else { // si no enfriar, 
-    if (actualTemp < 28.00)// si baja de la temp minima, decremento enfriar = true
+    if (actualTemp > 28.00)// si baja de la temp minima, decremento enfriar = true
       enfriar = true;
   }
   
