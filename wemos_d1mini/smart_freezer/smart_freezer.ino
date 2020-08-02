@@ -1,3 +1,5 @@
+#include <ArduinoOTA.h>
+
 #include <gfxfont.h>
 #include <Adafruit_SPITFT_Macros.h>
 #include <Adafruit_SPITFT.h>
@@ -21,6 +23,8 @@ DallasTemperature tempSensor(&oneWire);    // pass the oneWire reference to Dall
 Adafruit_SSD1306 display(OLED_RESET); // create a display instance
 
 int rele = 13;
+int tempMax = -18;
+int tempMin = -24;
 
 void setup() {
 
@@ -56,18 +60,15 @@ void loop() {
   tempSensor.requestTemperatures();
   actualTemp = tempSensor.getTempC(thermometerAddress);
   displayTemp(actualTemp);  // show temperature on OLED display
-  if (enfriar)
+  if (enfriar){
+    digitalWrite(rele, HIGH);   // Turn the FAN on (Note that LOW is the voltage level
     if (actualTemp < -24.00 )// si temp es menor a 24, enfriar = false
       enfriar = false;
-  else { // si no enfriar, 
-    if (actualTemp > -20.00)// si supera la temp máxima, enfriar = true
-      enfriar = true;
   }
-  
-  if (enfriar)
-    digitalWrite(rele, HIGH);   // Turn the FAN on (Note that LOW is the voltage level
-  else {
+  else { // si no enfriar, 
     digitalWrite(rele, LOW);
+    if (actualTemp > -18.00)// si supera la temp máxima, enfriar = true
+      enfriar = true;
   }
   delay(500);
 }
@@ -87,9 +88,14 @@ void displayTemp(float temperatureReading) {             // temperature comes in
   display.println("C");
   Serial.print(temperatureReading);      // serial debug output
   Serial.print("°");
-  Serial.println("C  ");
-
-  display.display();                    // update the OLED display with all the new text
+  Serial.print("C  ");
+  if (enfriar){
+    Serial.println(" enfriar");
+  }
+  else {
+    Serial.println(" detenido");
+  }
+  display.display();                    // update the OLED display with all the new tex
 }
 
 // print device address from the address array
